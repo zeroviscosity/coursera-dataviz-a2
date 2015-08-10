@@ -3,6 +3,15 @@
   <head>
     <meta charset="utf-8">
     <style>
+    body {
+      font: 16px sans-serif;
+      margin: 0 auto;
+      width: 960px;
+    }
+    h1 {
+      font-size: 20px;
+      text-align: center;
+    }
     .node {
       stroke: #fff;
       stroke-width: 1.5px;
@@ -11,29 +20,42 @@
       stroke: #999;
       stroke-opacity: .6;
     }
+    #summary {
+      margin: 20px auto 20px auto;
+      width: 720px;
+    }
+    #citation {
+      font-size: 12px;
+      margin: 20px auto;
+      width: 560px;
+    }
     </style>
   </head>
   <body>
+    <h1>Dolphin Social Network</h1>
+    <div id="summary">This chart depicts the frequent associations between 62 dolphins living off Doubtful Sound, New Zealand. The dolphins (ie: nodes) are color coded based on the number of other dolphins with which they frequently interacted. Hovering over a node will reveal the dolphin's name. The dolphin named Grin, which is colored red, can be seen to be the most extroverted in the community.</div>
+    <div id="chart"></div>
+    <ul id="citation">
+      <li>Data from the <a href="https://networkdata.ics.uci.edu/data.php?id=6" target="_blank">UCIrvine Network Data Repository</a></div>
+      <li>D. Lusseau, K. Schneider, O. J. Boisseau, P. Haase, E. Slooten, and S. M. Dawson, Behavioral Ecology and Sociobiology 54, 396-405 (2003).</div>
+    </ul>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.js"></script>
     <script>
     (function(d3) {
-      var width = 1000;
-      var height = 600;
-
-      var color = d3.scale.category10();
+      var width = 960;
+      var height = 540;
 
       var force = d3.layout.force()
         .charge(-120)
-        .linkDistance(30)
+        .linkDistance(50)
         .size([width, height]);
-      console.log(color(0), color(1), color(2));
 
-      var svg = d3.select('body').append('svg')
+      var svg = d3.select('#chart')
+        .append('svg')
         .attr('width', width)
         .attr('height', height);
 
-      //d3.json('celegansneural.json', function(error, graph) {
       d3.json('dolphins.json', function(error, graph) {
         if (error) throw error;
 
@@ -53,22 +75,21 @@
           .enter()
           .append('circle')
           .attr('class', 'node')
-          .attr('r', 5)
+          .attr('r', 6)
           .style('fill', function(d, i) {
-            var col;
             var num = _.filter(graph.edges, function(edge) {
-              return edge.target.index === i;
+              return edge.target.index === i || edge.source.index === i;
             }).length;
-            if (num < 3) {
-              col = 0;
-            } else if (num < 6) {
-              col = 2;
-            } else if (num < 9) {
-              col = 1;
+
+            if (num < 4) {
+              return '#1f77b4';
+            } else if (num < 8) {
+              return '#2ca02c';
+            } else if (num < 12) {
+              return '#ff7f0e';
             } else {
-              col = 3;
+              return '#d62728';
             }
-            return color(col);
           })
           .call(force.drag);
 
